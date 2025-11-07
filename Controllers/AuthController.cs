@@ -1,7 +1,9 @@
 using Business.DTOs.Authentication;
 using keycloak_sample.Services.Abstract;
 using keycloak_sample.Services.DTOs.Authentication;
+using keycloak_sample.Services.ServiceOptions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace keycloak_sample.Controllers;
 
@@ -9,16 +11,26 @@ namespace keycloak_sample.Controllers;
 [ApiController]
 public sealed class AuthController:ControllerBase
 {
+    private readonly KeycloakConfiguration _config;
     private readonly IKeycloakService _keycloakService;
+    private readonly ILogger<AuthController> _logger;
 
-    public AuthController(IKeycloakService keycloakService)
+
+    public AuthController(IKeycloakService keycloakService, IOptions<KeycloakConfiguration> options, ILogger<AuthController> logger)
     {
         _keycloakService = keycloakService;
+        _config = options.Value;
+        _logger = logger;
     }
 
     [HttpGet("admintoken")]
     public async Task<IActionResult> GetTokenAdmin(CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Keycloak Host: {Host}", _config.HostName);
+        _logger.LogInformation("ClientId: {ClientId}", _config.ClientId);
+        _logger.LogInformation("ClientSecret: {ClientSecret}", _config.ClientSecret);
+        _logger.LogInformation("ClientUUID: {ClientUUID}", _config.ClientUUID);
+
         try
         {
             string token = await _keycloakService.GetAdminTokenAsync(cancellationToken);

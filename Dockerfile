@@ -28,6 +28,9 @@ WORKDIR /app
 # کپی فایل‌های منتشرشده
 COPY --from=publish /app/publish .
 
+# اطمینان از وجود appsettings.json
+RUN ls -l /app | grep appsettings || echo "⚠️ appsettings.json not found!"
+
 # تنظیم آدرس اجرا
 ENV ASPNETCORE_URLS=http://+:8080
 
